@@ -1,0 +1,29 @@
+{
+    "name": "lemonade/dag",
+    "description": "DAG implementation for PHP",
+    "keywords": ["dag"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Christian Blank",
+            "email": "christian.blank@lemonade-research.de"
+        }
+    ],
+    "type": "project",
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lemonade\\Dag\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lemonade\\Dag\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.2"
+    }
+}
