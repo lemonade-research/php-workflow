@@ -1,7 +1,7 @@
 {
-    "name": "lemonade/dag",
-    "description": "DAG implementation for PHP",
-    "keywords": ["dag"],
+    "name": "lemonade/workflow",
+    "description": "Workflow implementation for PHP",
+    "keywords": ["workflow", "dag", "php"],
     "license": "MIT",
     "authors": [
         {
@@ -11,19 +11,40 @@
     ],
     "type": "project",
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.2",
+        "ramsey/uuid": "^4.7",
+        "react/promise": "^3.1",
+        "nesbot/carbon": "^2.72",
+        "react/event-loop": "^1.5",
+        "react/promise-timer": "^1.10",
+        "react/async": "^4.2"
     },
     "autoload": {
         "psr-4": {
-            "Lemonade\\Dag\\": "src/"
+            "Lemonade\\Workflow\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Lemonade\\Dag\\Tests\\": "tests/"
+            "Lemonade\\Workflow\\Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "check": [
+            "@analyze",
+            "@tests",
+            "@cs-check"
+        ],
+        "tests": "phpunit tests",
+        "analyze": "phpstan analyse --level max src",
+        "cs-check": "phpcs --parallel=50",
+        "cs-fix": "phpcbf"
+    },
     "require-dev": {
-        "phpunit/phpunit": "^10.2"
+        "phpunit/phpunit": "^10.2",
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpstan/phpstan": "^1.10",
+        "phpstan/phpstan-phpunit": "^1.3",
+        "phpspec/prophecy-phpunit": "^2.1"
     }
 }

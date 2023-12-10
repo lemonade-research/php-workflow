@@ -1,0 +1,8 @@
+includes:
+  - vendor/phpstan/phpstan-phpunit/extension.neon
+parameters:
+  tmpDir: data
+  level: max
+  paths:
+    - src
+    - tests
