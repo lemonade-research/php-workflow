@@ -14,7 +14,6 @@
         "php": ">=8.2",
         "ramsey/uuid": "^4.7",
         "react/promise": "^3.1",
-        "nesbot/carbon": "^2.72",
         "react/event-loop": "^1.5",
         "react/promise-timer": "^1.10",
         "react/async": "^4.2"
@@ -31,11 +30,11 @@
     },
     "scripts": {
         "check": [
+            "@cs-check",
             "@analyze",
-            "@tests",
-            "@cs-check"
+            "@tests"
         ],
-        "tests": "phpunit tests",
+        "tests": "XDEBUG_MODE=coverage phpunit tests --coverage-html 'data/clover'",
         "analyze": "phpstan analyse --level max src",
         "cs-check": "phpcs --parallel=50",
         "cs-fix": "phpcbf"

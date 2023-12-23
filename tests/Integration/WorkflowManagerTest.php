@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Lemonade\Workflow\Tests\Integration;
 
 use Lemonade\Workflow\Enum\WorkflowStatus;
+use Lemonade\Workflow\Graph\DagBuilder;
 use Lemonade\Workflow\Tests\Integration\Fixture\ExampleWorkflow;
 use Lemonade\Workflow\Tests\Integration\Fixture\WorkflowRepository;
+use Lemonade\Workflow\WorkflowEngine;
 use Lemonade\Workflow\WorkflowManager;
 use PHPUnit\Framework\TestCase;
 
@@ -32,17 +34,6 @@ class WorkflowManagerTest extends TestCase
 
         $manager = $this->getUnitUnderTest();
         $manager->start(self::class);
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldRaiseExceptionIfGivenWorkflowClassDoesNotExist(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        $manager = $this->getUnitUnderTest();
-        $manager->start('Foo\Bar\Baz');
     }
 
     /**
@@ -74,6 +65,10 @@ class WorkflowManagerTest extends TestCase
 
     private function getUnitUnderTest(): WorkflowManager
     {
-        return new WorkflowManager(new WorkflowRepository());
+        return new WorkflowManager(
+            new WorkflowRepository(),
+            new DagBuilder(),
+            new WorkflowEngine(),
+        );
     }
 }

@@ -31,9 +31,9 @@ class DagTest extends TestCase
     {
         $dag = $this->getUnitUnderTest();
 
-        $node1 = $this->prophesize(Node::class)->reveal();
-        $node2 = $this->prophesize(Node::class)->reveal();
-        $node3 = $this->prophesize(Node::class)->reveal();
+        $node1 = new Node(new \stdClass());
+        $node2 = new Node(new \stdClass());
+        $node3 = new Node(new \stdClass());
 
         $dag->addEdge($node1, $node2);
         $dag->addEdge($node2, $node3);

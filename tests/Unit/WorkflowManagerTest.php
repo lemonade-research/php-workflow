@@ -6,8 +6,10 @@ namespace Lemonade\Workflow\Tests\Unit;
 
 use Lemonade\Workflow\DataStorage\WorkflowRepositoryInterface;
 use Lemonade\Workflow\Enum\TaskStatus;
+use Lemonade\Workflow\Graph\DagBuilder;
 use Lemonade\Workflow\TaskInterface;
 use Lemonade\Workflow\Tests\AssertsPromiseTrait;
+use Lemonade\Workflow\WorkflowEngine;
 use Lemonade\Workflow\WorkflowManager;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -18,11 +20,15 @@ class WorkflowManagerTest extends TestCase
     use AssertsPromiseTrait;
 
     private $repository;
+    private $dagBuilder;
+    private $workflowEngine;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->repository = $this->prophesize(WorkflowRepositoryInterface::class);
+        $this->dagBuilder = $this->prophesize(DagBuilder::class);
+        $this->workflowEngine = $this->prophesize(WorkflowEngine::class);
     }
 
     /**
@@ -58,9 +64,23 @@ class WorkflowManagerTest extends TestCase
         $this->assertPromiseFulfillsWith($signal->predicate, true);
     }
 
+    /**
+     * @test
+     */
+    public function itShouldRaiseExceptionIfGivenWorkflowClassDoesNotExist(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $manager = $this->getUnitUnderTest();
+        $manager->start('Foo\Bar\Baz');
+    }
 
     private function getUnitUnderTest(): WorkflowManager
     {
-        return new WorkflowManager($this->repository->reveal());
+        return new WorkflowManager(
+            $this->repository->reveal(),
+            $this->dagBuilder->reveal(),
+            $this->workflowEngine->reveal(),
+        );
     }
 }

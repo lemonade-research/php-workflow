@@ -11,9 +11,9 @@ use Lemonade\Workflow\DataStorage\Workflow;
 use Lemonade\Workflow\DataStorage\WorkflowRepositoryInterface;
 use Lemonade\Workflow\Enum\TaskStatus;
 use Lemonade\Workflow\Enum\WorkflowStatus;
+use Lemonade\Workflow\Graph\DagBuilder;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use React\Promise\Promise;
 
 use function React\Promise\resolve;
 
@@ -21,13 +21,15 @@ class WorkflowManager
 {
     public function __construct(
         private readonly WorkflowRepositoryInterface $workflowRepository,
+        private readonly DagBuilder $dagBuilder,
+        private readonly WorkflowEngine $workflowEngine,
     ) {
     }
 
     /**
-     * Creates a workflow based on a given workflow interface instance.
+     * Creates a workflow based on a given workflow instance and starts the run immediately.
      *
-     * @param class-string $class
+     * @param class-string<WorkflowInterface> $class
      */
     public function start(string $class): Workflow
     {
@@ -38,8 +40,18 @@ class WorkflowManager
             throw new \InvalidArgumentException(sprintf('Class %s does not implement Workflow interface', $class));
         }
 
-        $workflow = new Workflow(Uuid::uuid4(), $class, WorkflowStatus::RUNNING);
+        $workflowInstance = new $class();
+
+        $workflow = new Workflow(
+            Uuid::uuid4(),
+            $class,
+            WorkflowStatus::RUNNING,
+            $this->dagBuilder->build($workflowInstance),
+        );
+
         $this->workflowRepository->persist($workflow);
+
+        $this->execute($workflow);
 
         return $workflow;
     }
@@ -52,6 +64,8 @@ class WorkflowManager
     public function resume(Workflow $workflow): void
     {
         $workflow->status = WorkflowStatus::RUNNING;
+        // run workflow
+        $this->execute($workflow);
     }
 
     public static function run(TaskInterface $task): Task
@@ -64,12 +78,19 @@ class WorkflowManager
             resolve(true),
         );
     }
+
     public static function timer(int $seconds): Timer
     {
         return new Timer($seconds);
     }
+
     public static function await(callable $callable): Signal
     {
         return new Signal(resolve($callable()));
+    }
+
+    private function execute(Workflow $workflow): void
+    {
+        $this->workflowEngine->run($workflow);
     }
 }
