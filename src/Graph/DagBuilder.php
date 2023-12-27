@@ -9,23 +9,27 @@ use Lemonade\Workflow\DataStorage\Task;
 use Lemonade\Workflow\DataStorage\Timer;
 use Lemonade\Workflow\WorkflowInterface;
 
+/**
+ * @phpstan-type DagTypes = Signal|Task|Timer
+ */
 class DagBuilder
 {
     /**
-     * @return Dag<Signal|Task|Timer>
+     * @return Dag<DagTypes>
      */
     public function build(WorkflowInterface $workflow): Dag
     {
-        $dag = new Dag();
+        /** @var Dag<DagTypes> $dag */
+        $dag = new Dag([], []);
         $generator = $workflow->execute();
-        /** @var Timer|Task|Signal $item */
+        /** @var DagTypes $item */
         $item = $generator->current();
         $generator->next();
         $lastNode = new Node($item);
         $dag->addNode($lastNode);
 
         while ($generator->valid()) {
-            /** @var Timer|Task|Signal $item */
+            /** @var DagTypes $item */
             $item = $generator->current();
             $generator->next();
             $currentNode = new Node($item);

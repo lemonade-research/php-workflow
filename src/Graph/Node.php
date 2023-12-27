@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Lemonade\Workflow\Graph;
 
 /**
- * @template T
+ * @template T of object
  */
 class Node
 {
     public function __construct(
-        /** @var T $predicate */
+        /** @var T $item */
         public readonly object $item,
     ) {
     }

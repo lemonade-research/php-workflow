@@ -9,4 +9,5 @@ enum TaskStatus
     case INITIAL;
     case COMPLETED;
     case FAILED;
+    case PENDING;
 }

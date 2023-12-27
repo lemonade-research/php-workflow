@@ -10,4 +10,9 @@ interface WorkflowRepositoryInterface
 {
     public function get(string $class, UuidInterface $id): Workflow;
     public function persist(Workflow $workflow): void;
+
+    /**
+     * @return \Generator<Workflow>
+     */
+    public function nextWorkflows(): \Generator;
 }

@@ -18,7 +18,6 @@ class DagBuilderTest extends TestCase
         $subject = $this->getUnitUnderTest();
         $dag = $subject->build(new ExampleWorkflow());
 
-        $this->assertSame(true, $dag->isValid());
         $this->assertCount(3, $dag->getNodes());
         $this->assertCount(2, $dag->getEdges());
     }

@@ -6,6 +6,7 @@ namespace Lemonade\Workflow\Tests\Integration\Fixture;
 
 use Lemonade\Workflow\DataStorage\Workflow;
 use Lemonade\Workflow\DataStorage\WorkflowRepositoryInterface;
+use Lemonade\Workflow\Enum\WorkflowStatus;
 use Ramsey\Uuid\UuidInterface;
 
 class WorkflowRepository implements WorkflowRepositoryInterface
@@ -24,5 +25,14 @@ class WorkflowRepository implements WorkflowRepositoryInterface
     public function persist(Workflow $workflow): void
     {
         $this->storage[$workflow->id->toString()] = $workflow;
+    }
+
+    public function nextWorkflows(): \Generator
+    {
+        foreach ($this->storage as $workflow) {
+            if ($workflow->status == WorkflowStatus::PENDING) {
+                yield $workflow;
+            }
+        }
     }
 }

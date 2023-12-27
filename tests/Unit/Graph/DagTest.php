@@ -13,7 +13,10 @@ class DagTest extends TestCase
 {
     use ProphecyTrait;
 
-    public function testAddAndRetrieveNodes()
+    /**
+     * @test
+     */
+    public function itShouldAddAndRetrieveNodes()
     {
         $dag = $this->getUnitUnderTest();
 
@@ -27,25 +30,98 @@ class DagTest extends TestCase
         $this->assertSame([$node1, $node2], $dag->getNodes());
     }
 
-    public function testAddAndRetrieveEdges()
+    /**
+     * @test
+     */
+    public function itShouldAddAndRetrieveEdges()
     {
-        $dag = $this->getUnitUnderTest();
-
         $node1 = new Node(new \stdClass());
         $node2 = new Node(new \stdClass());
         $node3 = new Node(new \stdClass());
 
+        $dag = $this->getUnitUnderTest();
+        $dag->addNode($node1);
+        $dag->addNode($node2);
+        $dag->addNode($node3);
         $dag->addEdge($node1, $node2);
         $dag->addEdge($node2, $node3);
 
         $this->assertCount(2, $dag->getEdges());
-        $this->assertSame([[$node1, $node2], [$node2, $node3]], $dag->getEdges());
+        $this->assertSame([[0, 1], [1, 2]], $dag->getEdges());
     }
 
-    public function testIsValid()
+    /**
+     * @test
+     */
+    public function itShouldThrowExceptionIfNodeDoesNotExist()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $node1 = new Node(new \stdClass());
+        $node2 = new Node(new \stdClass());
+
         $dag = $this->getUnitUnderTest();
-        $this->assertTrue($dag->isValid());
+        $dag->addEdge($node1, $node2);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldReturnStartNode()
+    {
+        $start = $this->prophesize(Node::class)->reveal();
+        $second = $this->prophesize(Node::class)->reveal();
+
+        $dag = $this->getUnitUnderTest();
+        $dag->addNode($start);
+        $dag->addNode($second);
+
+        $this->assertSame($start, $dag->start());
+    }
+
+    /**
+     * @test
+     * @dataProvider provideNextNodes
+     */
+    public function itShouldReturnNextNodes(Dag $dag, Node $current, array $expected): void
+    {
+        $this->assertSame($expected, $dag->next($current));
+    }
+
+    public static function provideNextNodes(): array
+    {
+        $dag = new Dag();
+        $node1 = new Node(new \stdClass());
+        $node2 = new Node(new \stdClass());
+        $node3 = new Node(new \stdClass());
+        $node4 = new Node(new \stdClass());
+        $dag->addNode($node1);
+        $dag->addNode($node2);
+        $dag->addNode($node3);
+        $dag->addNode($node4);
+        $dag->addEdge($node1, $node2);
+        $dag->addEdge($node2, $node4);
+        $dag->addEdge($node1, $node3);
+        $dag->addEdge($node3, $node4);
+
+
+        return [
+            'first node' => [
+                $dag,
+                $node1,
+                [$node2, $node3],
+            ],
+            'second node' => [
+                $dag,
+                $node2,
+                [$node4],
+            ],
+            'third node' => [
+                $dag,
+                $node3,
+                [$node4],
+            ],
+        ];
     }
 
     private function getUnitUnderTest(): Dag

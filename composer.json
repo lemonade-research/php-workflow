@@ -16,7 +16,10 @@
         "react/promise": "^3.1",
         "react/event-loop": "^1.5",
         "react/promise-timer": "^1.10",
-        "react/async": "^4.2"
+        "react/async": "^4.2",
+        "symfony/messenger": "^7.0",
+        "symfony/console": "^7.0",
+        "nesbot/carbon": "^2.72"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +37,7 @@
             "@analyze",
             "@tests"
         ],
-        "tests": "XDEBUG_MODE=coverage phpunit tests --coverage-html 'data/clover'",
+        "tests": "XDEBUG_MODE=coverage phpunit tests --coverage-text",
         "analyze": "phpstan analyse --level max src",
         "cs-check": "phpcs --parallel=50",
         "cs-fix": "phpcbf"

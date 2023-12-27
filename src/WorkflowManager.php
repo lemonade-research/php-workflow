@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Workflow;
 
+use Lemonade\Workflow\DataStorage\Log\LogCollection;
 use Lemonade\Workflow\DataStorage\Signal;
 use Lemonade\Workflow\DataStorage\Task;
 use Lemonade\Workflow\DataStorage\Timer;
@@ -14,15 +15,22 @@ use Lemonade\Workflow\Enum\WorkflowStatus;
 use Lemonade\Workflow\Graph\DagBuilder;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 use function React\Promise\resolve;
 
+/**
+ * Is responsible for managing workflows.
+ *  - It creates a workflow based on a given workflow instance and starts the run immediately.
+ *  - It loads a workflow from the data storage.
+ *  - It resumes a workflow.
+ */
 class WorkflowManager
 {
     public function __construct(
         private readonly WorkflowRepositoryInterface $workflowRepository,
         private readonly DagBuilder $dagBuilder,
-        private readonly WorkflowEngine $workflowEngine,
+        private readonly MessageBusInterface $messageBus,
     ) {
     }
 
@@ -45,8 +53,9 @@ class WorkflowManager
         $workflow = new Workflow(
             Uuid::uuid4(),
             $class,
-            WorkflowStatus::RUNNING,
+            WorkflowStatus::INITIAL,
             $this->dagBuilder->build($workflowInstance),
+            new LogCollection(),
         );
 
         $this->workflowRepository->persist($workflow);
@@ -63,8 +72,6 @@ class WorkflowManager
 
     public function resume(Workflow $workflow): void
     {
-        $workflow->status = WorkflowStatus::RUNNING;
-        // run workflow
         $this->execute($workflow);
     }
 
@@ -91,6 +98,6 @@ class WorkflowManager
 
     private function execute(Workflow $workflow): void
     {
-        $this->workflowEngine->run($workflow);
+        $this->messageBus->dispatch($workflow);
     }
 }

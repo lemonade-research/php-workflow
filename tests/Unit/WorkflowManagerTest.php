@@ -13,6 +13,7 @@ use Lemonade\Workflow\WorkflowEngine;
 use Lemonade\Workflow\WorkflowManager;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class WorkflowManagerTest extends TestCase
 {
@@ -21,14 +22,14 @@ class WorkflowManagerTest extends TestCase
 
     private $repository;
     private $dagBuilder;
-    private $workflowEngine;
+    private $messageBus;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->repository = $this->prophesize(WorkflowRepositoryInterface::class);
         $this->dagBuilder = $this->prophesize(DagBuilder::class);
-        $this->workflowEngine = $this->prophesize(WorkflowEngine::class);
+        $this->messageBus = $this->prophesize(MessageBusInterface::class);
     }
 
     /**
@@ -80,7 +81,7 @@ class WorkflowManagerTest extends TestCase
         return new WorkflowManager(
             $this->repository->reveal(),
             $this->dagBuilder->reveal(),
-            $this->workflowEngine->reveal(),
+            $this->messageBus->reveal(),
         );
     }
 }

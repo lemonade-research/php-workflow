@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace Lemonade\Workflow\Graph;
 
 /**
- * @template T
+ * @template T of object
  */
 class Dag
 {
-    /** @var Node<T>[] $nodes */
-    private array $nodes;
-    /** @var array<Node<T>[]> $edges */
-    private array $edges;
-
-    public function __construct()
-    {
+    public function __construct(
+        /** @var Node<T>[] $nodes */
+        private array $nodes = [],
+        /** @var array<int[]> $edges */
+        private array $edges = [],
+    ) {
     }
 
     /**
@@ -32,7 +31,14 @@ class Dag
      */
     public function addEdge(Node $from, Node $to): void
     {
-        $this->edges[] = [$from, $to];
+        $fromIndex = array_search($from, $this->nodes, true);
+        $toIndex = array_search($to, $this->nodes, true);
+
+        if ($fromIndex === false || $toIndex === false) {
+            throw new \InvalidArgumentException('Node not found');
+        }
+
+        $this->edges[] = [(int)$fromIndex, (int)$toIndex];
     }
 
     /**
@@ -44,15 +50,36 @@ class Dag
     }
 
     /**
-     * @return array<int, Node<T>[]>
+     * @return array<int[]>
      */
     public function getEdges(): array
     {
         return $this->edges;
     }
 
-    public function isValid(): bool
+    /**
+     * @return Node<T>
+     */
+    public function start(): Node
     {
-        return true;
+        return $this->nodes[0];
+    }
+
+    /**
+     * @param Node<T> $current
+     * @return Node<T>[]
+     */
+    public function next(Node $current): array
+    {
+        $index = array_search($current, $this->nodes, true);
+
+        if ($index === false) {
+            throw new \InvalidArgumentException('Node not found');
+        }
+
+        return array_values(array_map(
+            fn(array $edge) => $this->nodes[$edge[1]],
+            array_filter($this->edges, fn(array $edge) => $edge[0] === $index)
+        ));
     }
 }

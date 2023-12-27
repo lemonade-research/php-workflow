@@ -8,9 +8,9 @@ use Lemonade\Workflow\Enum\WorkflowStatus;
 use Lemonade\Workflow\Graph\DagBuilder;
 use Lemonade\Workflow\Tests\Integration\Fixture\ExampleWorkflow;
 use Lemonade\Workflow\Tests\Integration\Fixture\WorkflowRepository;
-use Lemonade\Workflow\WorkflowEngine;
 use Lemonade\Workflow\WorkflowManager;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Messenger\MessageBus;
 
 class WorkflowManagerTest extends TestCase
 {
@@ -22,7 +22,7 @@ class WorkflowManagerTest extends TestCase
         $manager = $this->getUnitUnderTest();
         $workflow = $manager->start(ExampleWorkflow::class);
 
-        $this->assertSame(WorkflowStatus::RUNNING, $workflow->status);
+        $this->assertSame(WorkflowStatus::INITIAL, $workflow->status);
     }
 
     /**
@@ -60,7 +60,7 @@ class WorkflowManagerTest extends TestCase
         $loadedWorkflow = $manager->load(ExampleWorkflow::class, $workflow->id);
         $manager->resume($loadedWorkflow);
 
-        $this->assertSame(WorkflowStatus::RUNNING, $loadedWorkflow->status);
+        $this->assertSame(WorkflowStatus::INITIAL, $loadedWorkflow->status);
     }
 
     private function getUnitUnderTest(): WorkflowManager
@@ -68,7 +68,7 @@ class WorkflowManagerTest extends TestCase
         return new WorkflowManager(
             new WorkflowRepository(),
             new DagBuilder(),
-            new WorkflowEngine(),
+            new MessageBus(),
         );
     }
 }
