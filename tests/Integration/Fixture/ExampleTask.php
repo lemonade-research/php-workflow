@@ -16,6 +16,15 @@ class ExampleTask implements TaskInterface
 
     public function run(Task $task): string
     {
+        if ($task->parameters['error'] ?? false) {
+            throw new \Exception('Error');
+        }
+
         return sprintf('Hello %s!', $task->id);
+    }
+
+    public function retryDelay(): array
+    {
+        return [1, 5, 10];
     }
 }

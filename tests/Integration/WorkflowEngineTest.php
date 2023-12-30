@@ -5,21 +5,22 @@ declare(strict_types=1);
 namespace Lemonade\Workflow\Tests\Integration;
 
 use Lemonade\Workflow\DataStorage\Log\Event\SignalActivated;
-use Lemonade\Workflow\DataStorage\Log\Event\TimerActivated;
-use Lemonade\Workflow\Tests\Integration\Fixture\TaskContainer;
+use Lemonade\Workflow\DataStorage\Log\Event\TaskErrored;
 use Lemonade\Workflow\DataStorage\Log\Event\TaskStarted;
+use Lemonade\Workflow\DataStorage\Log\Event\TimerActivated;
 use Lemonade\Workflow\DataStorage\Log\LogCollection;
 use Lemonade\Workflow\DataStorage\Workflow;
 use Lemonade\Workflow\Enum\WorkflowStatus;
 use Lemonade\Workflow\Graph\DagBuilder;
+use Lemonade\Workflow\Tests\Integration\Fixture\ExamplePayload;
 use Lemonade\Workflow\Tests\Integration\Fixture\ExampleWorkflow;
+use Lemonade\Workflow\Tests\Integration\Fixture\TaskContainer;
 use Lemonade\Workflow\Tests\Integration\Fixture\WorkflowRepository;
 use Lemonade\Workflow\WorkflowEngine;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\DependencyInjection\Container;
 
 class WorkflowEngineTest extends TestCase
 {
@@ -40,14 +41,16 @@ class WorkflowEngineTest extends TestCase
         $this->workflowRepository
             ->persist(Argument::type(Workflow::class))
             ->shouldBeCalled();
+        $payload = new ExamplePayload();
 
         $workflow = new ExampleWorkflow();
         $workflowInstance = new Workflow(
             id: Uuid::uuid4(),
             class: $workflow::class,
             status: WorkflowStatus::INITIAL,
-            graph: (new DagBuilder())->build($workflow),
+            graph: (new DagBuilder())->build($workflow, $payload),
             logs: new LogCollection(),
+            payload: $payload,
         );
 
         $subject = $this->getUnitUnderTest();
@@ -64,14 +67,16 @@ class WorkflowEngineTest extends TestCase
         $this->workflowRepository
             ->persist(Argument::type(Workflow::class))
             ->shouldBeCalled();
+        $payload = new ExamplePayload();
 
         $workflow = new ExampleWorkflow();
         $workflowInstance = new Workflow(
             id: Uuid::uuid4(),
             class: $workflow::class,
             status: WorkflowStatus::INITIAL,
-            graph: (new DagBuilder())->build($workflow),
+            graph: (new DagBuilder())->build($workflow, $payload),
             logs: new LogCollection(),
+            payload: $payload,
         );
 
         $subject = $this->getUnitUnderTest();
@@ -88,14 +93,16 @@ class WorkflowEngineTest extends TestCase
         $this->workflowRepository
             ->persist(Argument::type(Workflow::class))
             ->shouldBeCalled();
+        $payload = new ExamplePayload();
 
         $workflow = new ExampleWorkflow();
         $workflowInstance = new Workflow(
             id: Uuid::uuid4(),
             class: $workflow::class,
             status: WorkflowStatus::INITIAL,
-            graph: (new DagBuilder())->build($workflow),
+            graph: (new DagBuilder())->build($workflow, $payload),
             logs: new LogCollection(),
+            payload: $payload,
         );
 
         $subject = $this->getUnitUnderTest();
@@ -104,14 +111,27 @@ class WorkflowEngineTest extends TestCase
         $this->assertCount(1, $workflowInstance->logs->filterByEvent(TimerActivated::class));
     }
 
+    /**
+     * @test
+     */
     public function itShouldHandleErrorsProperly(): void
     {
-        // Test error handling during task execution
-    }
+        $payload = new ExamplePayload(true);
 
-    public function itShouldImplementRetryMechanismCorrectly(): void
-    {
-        // Test the retry logic
+        $workflow = new ExampleWorkflow();
+        $workflowInstance = new Workflow(
+            id: Uuid::uuid4(),
+            class: $workflow::class,
+            status: WorkflowStatus::INITIAL,
+            graph: (new DagBuilder())->build($workflow, $payload),
+            logs: new LogCollection(),
+            payload: $payload,
+        );
+
+        $subject = $this->getUnitUnderTest();
+        $subject->__invoke($workflowInstance);
+
+        $this->assertCount(1, $workflowInstance->logs->filterByEvent(TaskErrored::class));
     }
 
     public function itShouldHandleTimeoutsProperly(): void
@@ -122,16 +142,6 @@ class WorkflowEngineTest extends TestCase
     public function itShouldCompleteOverallWorkflowSuccessfully(): void
     {
         // Test a complete workflow execution
-    }
-
-    public function itShouldHandleConcurrencyAndParallelismEffectively(): void
-    {
-        // Test handling of concurrent tasks and parallel paths
-    }
-
-    public function itShouldPerformWellUnderDifferentLoads(): void
-    {
-        // Test performance under different loads
     }
 
     private function getUnitUnderTest(): WorkflowEngine

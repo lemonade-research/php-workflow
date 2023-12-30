@@ -20,6 +20,8 @@ class Task
         /** @var PromiseInterface<mixed> $value */
         public PromiseInterface $value,
         public int $retries = 0,
+        /** @var array<string, mixed> $parameters */
+        public array $parameters = [],
     ) {
     }
 }

@@ -115,8 +115,10 @@ class WorkflowEngine
 
     private function taskFailed(Workflow $workflow, TaskInterface $taskInstance, Task $task, Throwable $throwable): Task
     {
+        $delay = $taskInstance->retryDelay()[$task->retries] ?? 10;
         $task->status = TaskStatus::PENDING;
         $workflow->logs->add(new TaskErrored($workflow->id, $task->id, $throwable));
+        $workflow->nextTick = $workflow->nextTick->add(CarbonInterval::seconds($delay));
 
         // if max tries is reached task failed
         $task->retries++;

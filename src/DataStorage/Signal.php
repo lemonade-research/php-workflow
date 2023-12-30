@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Lemonade\Workflow\DataStorage;
 
-use React\Promise\PromiseInterface;
-
-class Signal
+readonly class Signal
 {
     public function __construct(
-        public readonly string $name,
+        public string $name,
         /** @var \Closure $predicate */
-        public readonly \Closure $predicate
+        public \Closure $predicate
     ) {
     }
 }

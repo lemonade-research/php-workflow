@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Workflow;
 
+use Lemonade\Workflow\DataStorage\EmptyPayload;
 use Lemonade\Workflow\DataStorage\Log\LogCollection;
 use Lemonade\Workflow\DataStorage\Signal;
 use Lemonade\Workflow\DataStorage\Task;
@@ -40,7 +41,7 @@ class WorkflowManager
      *
      * @param class-string<WorkflowInterface> $class
      */
-    public function start(string $class): Workflow
+    public function start(string $class, PayloadInterface $payload = new EmptyPayload()): Workflow
     {
         if (!class_exists($class)) {
             throw new \InvalidArgumentException(sprintf('Class %s does not exist', $class));
@@ -55,8 +56,9 @@ class WorkflowManager
             Uuid::uuid4(),
             $class,
             WorkflowStatus::INITIAL,
-            $this->dagBuilder->build($workflowInstance),
+            $this->dagBuilder->build($workflowInstance, $payload),
             new LogCollection(),
+            $payload,
         );
 
         $this->workflowRepository->persist($workflow);
@@ -78,8 +80,9 @@ class WorkflowManager
 
     /**
      * @param class-string<TaskInterface> $task
+     * @param array<string, mixed> $parameters
      */
-    public static function run(string $task): Task
+    public static function run(string $task, array $parameters = []): Task
     {
         return new Task(
             Uuid::uuid4(),
@@ -87,6 +90,8 @@ class WorkflowManager
             $task,
             TaskStatus::INITIAL,
             (new Deferred())->promise(),
+            0,
+            $parameters,
         );
     }
 

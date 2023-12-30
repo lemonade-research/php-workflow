@@ -7,6 +7,7 @@ namespace Lemonade\Workflow\Graph;
 use Lemonade\Workflow\DataStorage\Signal;
 use Lemonade\Workflow\DataStorage\Task;
 use Lemonade\Workflow\DataStorage\Timer;
+use Lemonade\Workflow\PayloadInterface;
 use Lemonade\Workflow\WorkflowInterface;
 
 /**
@@ -17,11 +18,11 @@ class DagBuilder
     /**
      * @return Dag<DagTypes>
      */
-    public function build(WorkflowInterface $workflow): Dag
+    public function build(WorkflowInterface $workflow, PayloadInterface $payload): Dag
     {
         /** @var Dag<DagTypes> $dag */
         $dag = new Dag([], []);
-        $generator = $workflow->execute();
+        $generator = $workflow->execute($payload);
         /** @var DagTypes $item */
         $item = $generator->current();
         $generator->next();

@@ -9,5 +9,5 @@ namespace Lemonade\Workflow;
  */
 interface WorkflowInterface
 {
-    public function execute(): \Generator;
+    public function execute(PayloadInterface $payload): \Generator;
 }

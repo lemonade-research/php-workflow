@@ -9,6 +9,7 @@ use Lemonade\Workflow\DataStorage\Log\LogCollection;
 use Lemonade\Workflow\Enum\WorkflowStatus;
 use Lemonade\Workflow\Graph\Dag;
 use Lemonade\Workflow\Graph\DagBuilder;
+use Lemonade\Workflow\PayloadInterface;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -28,6 +29,7 @@ class Workflow
         /** @var Dag<DagTypes> $graph */
         public readonly Dag $graph,
         public readonly LogCollection $logs,
+        public readonly PayloadInterface $payload,
     ) {
         $this->createdAt = new \DateTimeImmutable();
         $this->nextTick = $this->createdAt->add(CarbonInterval::seconds(self::DEFAULT_TICK_INTERVAL));
