@@ -18,8 +18,8 @@ class DagBuilderTest extends TestCase
         $subject = $this->getUnitUnderTest();
         $dag = $subject->build(new ExampleWorkflow());
 
-        $this->assertCount(3, $dag->getNodes());
-        $this->assertCount(2, $dag->getEdges());
+        $this->assertCount(5, $dag->getNodes());
+        $this->assertCount(4, $dag->getEdges());
     }
 
     private function getUnitUnderTest(): DagBuilder

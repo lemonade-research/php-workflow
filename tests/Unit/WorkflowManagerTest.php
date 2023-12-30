@@ -37,10 +37,9 @@ class WorkflowManagerTest extends TestCase
      */
     public function itShouldReturnTaskOnFactoryMethodRun(): void
     {
-        $taskInstance = $this->prophesize(TaskInterface::class)->reveal();
-        $task = WorkflowManager::run($taskInstance);
+        $task = WorkflowManager::run(TaskInterface::class);
 
-        $this->assertSame($taskInstance::class, $task->class);
+        $this->assertSame(TaskInterface::class, $task->class);
         $this->assertSame(TaskStatus::INITIAL, $task->status);
     }
 
@@ -60,9 +59,9 @@ class WorkflowManagerTest extends TestCase
      */
     public function itShouldReturnSignalOnFactoryMethodAwait(): void
     {
-        $signal = WorkflowManager::await(fn() => 123 > 12);
+        $signal = WorkflowManager::await('foo', fn() => 123 > 12);
 
-        $this->assertPromiseFulfillsWith($signal->predicate, true);
+        $this->assertSame(true, ($signal->predicate)());
     }
 
     /**

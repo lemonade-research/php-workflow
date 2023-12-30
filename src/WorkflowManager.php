@@ -15,6 +15,7 @@ use Lemonade\Workflow\Enum\WorkflowStatus;
 use Lemonade\Workflow\Graph\DagBuilder;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use React\Promise\Deferred;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 use function React\Promise\resolve;
@@ -75,14 +76,17 @@ class WorkflowManager
         $this->execute($workflow);
     }
 
-    public static function run(TaskInterface $task): Task
+    /**
+     * @param class-string<TaskInterface> $task
+     */
+    public static function run(string $task): Task
     {
         return new Task(
             Uuid::uuid4(),
             Uuid::uuid4(),
-            $task::class,
+            $task,
             TaskStatus::INITIAL,
-            resolve(true),
+            (new Deferred())->promise(),
         );
     }
 
@@ -91,9 +95,9 @@ class WorkflowManager
         return new Timer($seconds);
     }
 
-    public static function await(callable $callable): Signal
+    public static function await(string $name, \Closure $predicate): Signal
     {
-        return new Signal(resolve($callable()));
+        return new Signal($name, $predicate);
     }
 
     private function execute(Workflow $workflow): void

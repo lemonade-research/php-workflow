@@ -82,4 +82,12 @@ class Dag
             array_filter($this->edges, fn(array $edge) => $edge[0] === $index)
         ));
     }
+
+    public function __toString(): string
+    {
+        $nodes = array_map(fn(Node $node) => $node->item::class, $this->nodes);
+        $edges = array_map(fn(array $edge) => $edge[0] . ' -> ' . $edge[1], $this->edges);
+
+        return implode("\n", array_merge($nodes, $edges));
+    }
 }

@@ -9,8 +9,9 @@ use React\Promise\PromiseInterface;
 class Signal
 {
     public function __construct(
-        /** @var PromiseInterface<bool> $predicate */
-        public readonly PromiseInterface $predicate
+        public readonly string $name,
+        /** @var \Closure $predicate */
+        public readonly \Closure $predicate
     ) {
     }
 }

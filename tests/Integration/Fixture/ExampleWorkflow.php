@@ -11,8 +11,10 @@ class ExampleWorkflow implements WorkflowInterface
 {
     public function execute(): \Generator
     {
-        yield WorkflowManager::run(new ExampleTask());
+        yield WorkflowManager::run(ExampleTask::class);
         yield WorkflowManager::timer(10);
-        yield WorkflowManager::run(new ExampleTask());
+        yield WorkflowManager::run(ExampleTask::class);
+        yield WorkflowManager::await('signal', fn() => true);
+        yield WorkflowManager::run(ExampleTask::class);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Workflow\Tests\Unit\Graph;
 
+use Carbon\Carbon;
 use Lemonade\Workflow\Graph\Dag;
 use Lemonade\Workflow\Graph\Node;
 use PHPUnit\Framework\TestCase;
@@ -77,6 +78,19 @@ class DagTest extends TestCase
         $dag->addNode($second);
 
         $this->assertSame($start, $dag->start());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldThrowExceptionIfNodeDoesNotExistForNextCall()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $node = new Node(new \stdClass());
+
+        $dag = $this->getUnitUnderTest();
+        $dag->next($node);
     }
 
     /**

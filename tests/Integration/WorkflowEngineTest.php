@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Workflow\Tests\Integration;
 
+use Lemonade\Workflow\DataStorage\Log\Event\SignalActivated;
+use Lemonade\Workflow\DataStorage\Log\Event\TimerActivated;
 use Lemonade\Workflow\Tests\Integration\Fixture\TaskContainer;
 use Lemonade\Workflow\DataStorage\Log\Event\TaskStarted;
 use Lemonade\Workflow\DataStorage\Log\LogCollection;
@@ -14,16 +16,31 @@ use Lemonade\Workflow\Tests\Integration\Fixture\ExampleWorkflow;
 use Lemonade\Workflow\Tests\Integration\Fixture\WorkflowRepository;
 use Lemonade\Workflow\WorkflowEngine;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\Container;
 
 class WorkflowEngineTest extends TestCase
 {
+    use ProphecyTrait;
+
+    private $workflowRepository;
+
+    protected function setUp(): void
+    {
+        $this->workflowRepository = $this->prophesize(WorkflowRepository::class);
+    }
+
     /**
      * @test
      */
-    public function itShouldExecuteTasksCorrectly()
+    public function itShouldExecuteTasksCorrectly(): void
     {
+        $this->workflowRepository
+            ->persist(Argument::type(Workflow::class))
+            ->shouldBeCalled();
+
         $workflow = new ExampleWorkflow();
         $workflowInstance = new Workflow(
             id: Uuid::uuid4(),
@@ -36,50 +53,83 @@ class WorkflowEngineTest extends TestCase
         $subject = $this->getUnitUnderTest();
         $subject->__invoke($workflowInstance);
 
-        $this->assertCount(2, $workflowInstance->logs->filterByEvent(TaskStarted::class));
+        $this->assertCount(3, $workflowInstance->logs->filterByEvent(TaskStarted::class));
     }
 
-    public function itShouldPersistStateCorrectly()
-    {
-        // Test if the workflow state is persisted correctly
-    }
-
+    /**
+     * @test
+     */
     public function itShouldHandleSignalsProperly()
     {
-        // Test handling of different signals
+        $this->workflowRepository
+            ->persist(Argument::type(Workflow::class))
+            ->shouldBeCalled();
+
+        $workflow = new ExampleWorkflow();
+        $workflowInstance = new Workflow(
+            id: Uuid::uuid4(),
+            class: $workflow::class,
+            status: WorkflowStatus::INITIAL,
+            graph: (new DagBuilder())->build($workflow),
+            logs: new LogCollection(),
+        );
+
+        $subject = $this->getUnitUnderTest();
+        $subject->__invoke($workflowInstance);
+
+        $this->assertCount(1, $workflowInstance->logs->filterByEvent(SignalActivated::class));
     }
 
-    public function itShouldHandleTimersCorrectly()
+    /**
+     * @test
+     */
+    public function itShouldHandleTimersCorrectly(): void
     {
-        // Test the timer functionality
+        $this->workflowRepository
+            ->persist(Argument::type(Workflow::class))
+            ->shouldBeCalled();
+
+        $workflow = new ExampleWorkflow();
+        $workflowInstance = new Workflow(
+            id: Uuid::uuid4(),
+            class: $workflow::class,
+            status: WorkflowStatus::INITIAL,
+            graph: (new DagBuilder())->build($workflow),
+            logs: new LogCollection(),
+        );
+
+        $subject = $this->getUnitUnderTest();
+        $subject->__invoke($workflowInstance);
+
+        $this->assertCount(1, $workflowInstance->logs->filterByEvent(TimerActivated::class));
     }
 
-    public function itShouldHandleErrorsProperly()
+    public function itShouldHandleErrorsProperly(): void
     {
         // Test error handling during task execution
     }
 
-    public function itShouldImplementRetryMechanismCorrectly()
+    public function itShouldImplementRetryMechanismCorrectly(): void
     {
         // Test the retry logic
     }
 
-    public function itShouldHandleTimeoutsProperly()
+    public function itShouldHandleTimeoutsProperly(): void
     {
         // Test the handling of timeouts
     }
 
-    public function itShouldCompleteOverallWorkflowSuccessfully()
+    public function itShouldCompleteOverallWorkflowSuccessfully(): void
     {
         // Test a complete workflow execution
     }
 
-    public function itShouldHandleConcurrencyAndParallelismEffectively()
+    public function itShouldHandleConcurrencyAndParallelismEffectively(): void
     {
         // Test handling of concurrent tasks and parallel paths
     }
 
-    public function itShouldPerformWellUnderDifferentLoads()
+    public function itShouldPerformWellUnderDifferentLoads(): void
     {
         // Test performance under different loads
     }
@@ -88,7 +138,7 @@ class WorkflowEngineTest extends TestCase
     {
         return new WorkflowEngine(
             new TaskContainer(),
-            new WorkflowRepository(),
+            $this->workflowRepository->reveal(),
         );
     }
 }
