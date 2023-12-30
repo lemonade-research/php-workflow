@@ -61,7 +61,7 @@ class WorkflowManagerTest extends TestCase
     {
         $signal = WorkflowManager::await('foo', fn() => 123 > 12);
 
-        $this->assertSame(true, ($signal->predicate)());
+        $this->assertTrue($signal->predicateResult);
     }
 
     /**

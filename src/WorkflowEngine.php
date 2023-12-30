@@ -146,9 +146,7 @@ class WorkflowEngine
 
     private function checkSignal(Workflow $workflow, Signal $item): Event
     {
-        $active = ($item->predicate)();
-
-        if ($active) {
+        if ($item->predicateResult) {
             return new SignalActivated($workflow->id, $item->name);
         }
 

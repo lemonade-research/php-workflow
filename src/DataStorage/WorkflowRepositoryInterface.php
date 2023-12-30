@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Workflow\DataStorage;
 
+use Lemonade\Workflow\Enum\WorkflowStatus;
 use Ramsey\Uuid\UuidInterface;
 
 interface WorkflowRepositoryInterface
@@ -15,4 +16,9 @@ interface WorkflowRepositoryInterface
      * @return \Generator<Workflow>
      */
     public function nextWorkflows(): \Generator;
+
+    /**
+     * @return Workflow[]
+     */
+    public function findByStatus(WorkflowStatus $status): array;
 }

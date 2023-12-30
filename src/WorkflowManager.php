@@ -102,7 +102,7 @@ class WorkflowManager
 
     public static function await(string $name, \Closure $predicate): Signal
     {
-        return new Signal($name, $predicate);
+        return new Signal($name, $predicate());
     }
 
     private function execute(Workflow $workflow): void

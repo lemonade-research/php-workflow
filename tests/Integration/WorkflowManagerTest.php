@@ -6,6 +6,7 @@ namespace Lemonade\Workflow\Tests\Integration;
 
 use Lemonade\Workflow\Enum\WorkflowStatus;
 use Lemonade\Workflow\Graph\DagBuilder;
+use Lemonade\Workflow\Tests\Integration\Fixture\ExamplePayload;
 use Lemonade\Workflow\Tests\Integration\Fixture\ExampleWorkflow;
 use Lemonade\Workflow\Tests\Integration\Fixture\WorkflowRepository;
 use Lemonade\Workflow\WorkflowManager;
@@ -20,7 +21,7 @@ class WorkflowManagerTest extends TestCase
     public function itShouldStartAWorkflow(): void
     {
         $manager = $this->getUnitUnderTest();
-        $workflow = $manager->start(ExampleWorkflow::class);
+        $workflow = $manager->start(ExampleWorkflow::class, new ExamplePayload());
 
         $this->assertSame(WorkflowStatus::INITIAL, $workflow->status);
     }
@@ -42,7 +43,7 @@ class WorkflowManagerTest extends TestCase
     public function itShouldLoadAWorkflow(): void
     {
         $manager = $this->getUnitUnderTest();
-        $workflow = $manager->start(ExampleWorkflow::class);
+        $workflow = $manager->start(ExampleWorkflow::class, new ExamplePayload());
         $loadedWorkflow = $manager->load(ExampleWorkflow::class, $workflow->id);
 
         $this->assertSame($workflow->id, $loadedWorkflow->id);
@@ -56,7 +57,7 @@ class WorkflowManagerTest extends TestCase
     public function itShouldPutWorkflowInRunningStateOnResume(): void
     {
         $manager = $this->getUnitUnderTest();
-        $workflow = $manager->start(ExampleWorkflow::class);
+        $workflow = $manager->start(ExampleWorkflow::class, new ExamplePayload());
         $loadedWorkflow = $manager->load(ExampleWorkflow::class, $workflow->id);
         $manager->resume($loadedWorkflow);
 

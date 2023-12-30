@@ -35,4 +35,9 @@ class WorkflowRepository implements WorkflowRepositoryInterface
             }
         }
     }
+
+    public function findByStatus(WorkflowStatus $status): array
+    {
+        return array_values(array_filter($this->storage, fn(Workflow $workflow) => $workflow->status === $status));
+    }
 }
