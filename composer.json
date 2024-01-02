@@ -2,6 +2,7 @@
     "name": "lemonade/workflow",
     "description": "Workflow implementation for PHP",
     "keywords": ["workflow", "dag", "php"],
+    "type": "symfony-bundle",
     "license": "MIT",
     "authors": [
         {
@@ -9,7 +10,6 @@
             "email": "christian.blank@lemonade-research.de"
         }
     ],
-    "type": "project",
     "require": {
         "php": ">=8.2",
         "ramsey/uuid": "^4.7",
@@ -19,7 +19,8 @@
         "react/async": "^4.2",
         "symfony/messenger": "^7.0",
         "symfony/console": "^7.0",
-        "nesbot/carbon": "^2.72 || ^3.0"
+        "nesbot/carbon": "^2.72 || ^3.0",
+        "symfony/framework-bundle": "^7.0"
     },
     "autoload": {
         "psr-4": {

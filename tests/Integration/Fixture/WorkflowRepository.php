@@ -14,10 +14,10 @@ class WorkflowRepository implements WorkflowRepositoryInterface
     /** @var array<string, Workflow> */
     private array $storage = [];
 
-    public function get(string $class, UuidInterface $id): Workflow
+    public function get(UuidInterface $id): Workflow
     {
         if (!isset($this->storage[$id->toString()])) {
-            throw new \LogicException(sprintf('Workflow %s with id %s does not exist', $class, $id->toString()));
+            throw new \LogicException(sprintf('Workflow with id %s does not exist', $id->toString()));
         }
         return $this->storage[$id->toString()];
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Workflow;
 
 use Lemonade\Workflow\DataStorage\Task;
+use Lemonade\Workflow\DataStorage\Workflow;
 
 interface TaskInterface
 {
@@ -15,5 +16,5 @@ interface TaskInterface
      */
     public function retryDelay(): array;
 
-    public function run(Task $task): mixed;
+    public function run(Workflow $workflow, Task $task): mixed;
 }

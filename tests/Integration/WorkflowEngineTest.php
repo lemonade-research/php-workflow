@@ -21,6 +21,8 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class WorkflowEngineTest extends TestCase
 {
@@ -56,7 +58,7 @@ class WorkflowEngineTest extends TestCase
         $subject = $this->getUnitUnderTest();
         $subject->__invoke($workflowInstance);
 
-        $this->assertCount(3, $workflowInstance->logs->filterByEvent(TaskStarted::class));
+        $this->assertCount(1, $workflowInstance->logs->filterByEvent(TaskStarted::class));
     }
 
     /**
@@ -80,6 +82,9 @@ class WorkflowEngineTest extends TestCase
         );
 
         $subject = $this->getUnitUnderTest();
+        $subject->__invoke($workflowInstance);
+        $subject->__invoke($workflowInstance);
+        $subject->__invoke($workflowInstance);
         $subject->__invoke($workflowInstance);
 
         $this->assertCount(1, $workflowInstance->logs->filterByEvent(SignalActivated::class));
@@ -107,6 +112,7 @@ class WorkflowEngineTest extends TestCase
 
         $subject = $this->getUnitUnderTest();
         $subject->__invoke($workflowInstance);
+        $subject->__invoke($workflowInstance);
 
         $this->assertCount(1, $workflowInstance->logs->filterByEvent(TimerActivated::class));
     }
@@ -130,8 +136,33 @@ class WorkflowEngineTest extends TestCase
 
         $subject = $this->getUnitUnderTest();
         $subject->__invoke($workflowInstance);
+        $subject->__invoke($workflowInstance);
+        $subject->__invoke($workflowInstance);
 
         $this->assertCount(1, $workflowInstance->logs->filterByEvent(TaskErrored::class));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldBeSerializable(): void
+    {
+        $payload = new ExamplePayload(true);
+
+        $workflow = new ExampleWorkflow();
+        $workflowInstance = new Workflow(
+            id: Uuid::uuid4(),
+            class: $workflow::class,
+            status: WorkflowStatus::INITIAL,
+            graph: (new DagBuilder())->build($workflow, $payload),
+            logs: new LogCollection(),
+            payload: $payload,
+        );
+
+        $subject = $this->getUnitUnderTest();
+        $subject->__invoke($workflowInstance);
+
+        $this->assertIsString(serialize($workflowInstance));
     }
 
     public function itShouldHandleTimeoutsProperly(): void
@@ -146,9 +177,13 @@ class WorkflowEngineTest extends TestCase
 
     private function getUnitUnderTest(): WorkflowEngine
     {
+        $messageBus = $this->prophesize(MessageBusInterface::class);
+        $messageBus->dispatch(Argument::cetera())->willReturn(new Envelope(new \stdClass()));
+
         return new WorkflowEngine(
             new TaskContainer(),
             $this->workflowRepository->reveal(),
+            $messageBus->reveal(),
         );
     }
 }

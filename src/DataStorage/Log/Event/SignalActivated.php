@@ -17,4 +17,9 @@ class SignalActivated implements Event
     ) {
         $this->createdAt = Carbon::now();
     }
+
+    public function __toString(): string
+    {
+        return sprintf('%s(%s, %s)', self::class, $this->workflowId, $this->signalName);
+    }
 }

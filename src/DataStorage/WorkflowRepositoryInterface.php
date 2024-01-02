@@ -9,7 +9,7 @@ use Ramsey\Uuid\UuidInterface;
 
 interface WorkflowRepositoryInterface
 {
-    public function get(string $class, UuidInterface $id): Workflow;
+    public function get(UuidInterface $id): Workflow;
     public function persist(Workflow $workflow): void;
 
     /**

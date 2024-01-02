@@ -49,4 +49,9 @@ class LogCollection implements IteratorAggregate
     {
         return new LogCollection(...array_filter($this->logs, fn (Event $log) => $log instanceof $class));
     }
+
+    public function __toString(): string
+    {
+        return implode(', ', $this->logs);
+    }
 }

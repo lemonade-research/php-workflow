@@ -14,8 +14,13 @@ class TaskErrored implements Event
     public function __construct(
         public readonly UuidInterface $workflowId,
         public readonly UuidInterface $taskId,
-        public readonly \Throwable $error,
+        public readonly string $error,
     ) {
         $this->createdAt = Carbon::now();
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('%s(%s, %s)', self::class, $this->workflowId, $this->taskId);
     }
 }

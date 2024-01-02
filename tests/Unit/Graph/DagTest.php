@@ -68,7 +68,7 @@ class DagTest extends TestCase
     /**
      * @test
      */
-    public function itShouldReturnStartNode()
+    public function itShouldReturnCurrentActiveNode()
     {
         $start = $this->prophesize(Node::class)->reveal();
         $second = $this->prophesize(Node::class)->reveal();
@@ -77,7 +77,8 @@ class DagTest extends TestCase
         $dag->addNode($start);
         $dag->addNode($second);
 
-        $this->assertSame($start, $dag->start());
+
+        $this->assertSame($start, $dag->current());
     }
 
     /**
@@ -117,7 +118,6 @@ class DagTest extends TestCase
         $dag->addEdge($node2, $node4);
         $dag->addEdge($node1, $node3);
         $dag->addEdge($node3, $node4);
-
 
         return [
             'first node' => [

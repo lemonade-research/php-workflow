@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Workflow\Tests\Integration\Fixture;
 
 use Lemonade\Workflow\DataStorage\Task;
+use Lemonade\Workflow\DataStorage\Workflow;
 use Lemonade\Workflow\TaskInterface;
 
 class ExampleTask implements TaskInterface
@@ -14,7 +15,7 @@ class ExampleTask implements TaskInterface
         return 3;
     }
 
-    public function run(Task $task): string
+    public function run(Workflow $workflow, Task $task): string
     {
         if ($task->parameters['error'] ?? false) {
             throw new \Exception('Error');

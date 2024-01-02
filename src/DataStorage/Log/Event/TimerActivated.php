@@ -16,4 +16,9 @@ class TimerActivated implements Event
     ) {
         $this->createdAt = Carbon::now();
     }
+
+    public function __toString(): string
+    {
+        return sprintf('%s(%s)', self::class, $this->workflowId);
+    }
 }

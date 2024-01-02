@@ -14,7 +14,13 @@ class TaskCompleted implements Event
     public function __construct(
         public readonly UuidInterface $workflowId,
         public readonly UuidInterface $taskId,
+        public readonly string $taskName,
     ) {
         $this->createdAt = Carbon::now();
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('%s(%s, %s, %s)', self::class, $this->workflowId, $this->taskId, $this->taskName);
     }
 }

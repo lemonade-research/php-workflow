@@ -6,4 +6,5 @@ namespace Lemonade\Workflow\DataStorage\Log\Event;
 
 interface Event
 {
+    public function __toString(): string;
 }

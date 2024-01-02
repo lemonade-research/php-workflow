@@ -16,10 +16,7 @@ use Lemonade\Workflow\Enum\WorkflowStatus;
 use Lemonade\Workflow\Graph\DagBuilder;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use React\Promise\Deferred;
 use Symfony\Component\Messenger\MessageBusInterface;
-
-use function React\Promise\resolve;
 
 /**
  * Is responsible for managing workflows.
@@ -62,15 +59,14 @@ class WorkflowManager
         );
 
         $this->workflowRepository->persist($workflow);
-
         $this->execute($workflow);
 
         return $workflow;
     }
 
-    public function load(string $class, UuidInterface $id): Workflow
+    public function load(UuidInterface $id): Workflow
     {
-        return $this->workflowRepository->get($class, $id);
+        return $this->workflowRepository->get($id);
     }
 
     public function resume(Workflow $workflow): void
@@ -86,10 +82,9 @@ class WorkflowManager
     {
         return new Task(
             Uuid::uuid4(),
-            Uuid::uuid4(),
             $task,
             TaskStatus::INITIAL,
-            (new Deferred())->promise(),
+            null,
             0,
             $parameters,
         );

@@ -44,7 +44,7 @@ class WorkflowManagerTest extends TestCase
     {
         $manager = $this->getUnitUnderTest();
         $workflow = $manager->start(ExampleWorkflow::class, new ExamplePayload());
-        $loadedWorkflow = $manager->load(ExampleWorkflow::class, $workflow->id);
+        $loadedWorkflow = $manager->load($workflow->id);
 
         $this->assertSame($workflow->id, $loadedWorkflow->id);
         $this->assertSame($workflow->class, $loadedWorkflow->class);
@@ -58,7 +58,7 @@ class WorkflowManagerTest extends TestCase
     {
         $manager = $this->getUnitUnderTest();
         $workflow = $manager->start(ExampleWorkflow::class, new ExamplePayload());
-        $loadedWorkflow = $manager->load(ExampleWorkflow::class, $workflow->id);
+        $loadedWorkflow = $manager->load($workflow->id);
         $manager->resume($loadedWorkflow);
 
         $this->assertSame(WorkflowStatus::INITIAL, $loadedWorkflow->status);

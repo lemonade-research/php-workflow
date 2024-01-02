@@ -14,6 +14,7 @@ class Dag
         private array $nodes = [],
         /** @var array<int[]> $edges */
         private array $edges = [],
+        public int $index = 0,
     ) {
     }
 
@@ -60,10 +61,11 @@ class Dag
     /**
      * @return Node<T>
      */
-    public function start(): Node
+    public function current(): Node
     {
-        return $this->nodes[0];
+        return $this->nodes[$this->index];
     }
+
 
     /**
      * @param Node<T> $current
@@ -81,6 +83,21 @@ class Dag
             fn(array $edge) => $this->nodes[$edge[1]],
             array_filter($this->edges, fn(array $edge) => $edge[0] === $index)
         ));
+    }
+
+    /**
+     * @param Node<T> $current
+     */
+    public function nextIndex(Node $current): void
+    {
+        /** @var int|false $index */
+        $index = array_search($current, $this->nodes, true);
+
+        if ($index === false) {
+            throw new \InvalidArgumentException('Node not found');
+        }
+
+        $this->index = $index;
     }
 
     public function __toString(): string

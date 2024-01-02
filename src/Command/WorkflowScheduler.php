@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lemonade\Workflow\ConsoleCommand;
+namespace Lemonade\Workflow\Command;
 
 use Lemonade\Workflow\DataStorage\WorkflowRepositoryInterface;
 use Symfony\Component\Console\Attribute\AsCommand;

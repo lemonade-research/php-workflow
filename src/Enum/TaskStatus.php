@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Lemonade\Workflow\Enum;
 
-enum TaskStatus
+enum TaskStatus : string
 {
-    case INITIAL;
-    case COMPLETED;
-    case FAILED;
-    case PENDING;
+    case INITIAL = 'initial';
+    case COMPLETED = 'completed';
+    case FAILED = 'failed';
+    case PENDING = 'pending';
 }
